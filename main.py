@@ -1,4 +1,4 @@
-"""Remove nearly transparent pixels from every PNG in the input directory."""
+"""Clean every PNG in the input directory."""
 
 from __future__ import annotations
 
@@ -13,7 +13,6 @@ KMEANS_ITERATIONS = 3
 
 
 def clean_png(source: Path, destination: Path) -> None:
-    """Remove faint pixels and consolidate similar colours into a small palette."""
     with Image.open(source) as image:
         rgba_image = image.convert("RGBA")
         alpha = rgba_image.getchannel("A")
@@ -29,7 +28,7 @@ def clean_png(source: Path, destination: Path) -> None:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Clean near-transparent pixels from PNG files."
+        description="Clean every PNG in the input directory."
     )
     return parser.parse_args()
 
@@ -57,7 +56,9 @@ def main() -> None:
 
     for source in png_files:
         destination = output_dir / source.name
+        
         clean_png(source, destination)
+
         print(f"Cleaned: {source.name} -> {destination}")
 
 

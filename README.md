@@ -1,6 +1,6 @@
 # pngcleaner
 
-`pngcleaner` is a command-line tool for cleaning transparent 2D PNG images.
+`pngcleaner` is a command-line tool for cleaning transparent 2D PNG images
 
 It is intended for sprites, icons, game assets, and other images that use an
 alpha channel. The cleaner removes unwanted stray colour from transparent or
@@ -20,7 +20,7 @@ The project runs from the command line. It accepts a transparent PNG as input,
 processes its pixel data, and writes a cleaned PNG as output.
 
 ```text
-pngcleaner <input.png> <output.png>
+python main.py
 ```
 
 Keep the original image and write the cleaned result to a separate output path
