@@ -8,10 +8,12 @@ from pathlib import Path
 from PIL import Image
 
 ALPHA_THRESHOLD = 20
+PALETTE_COLORS = 64
+KMEANS_ITERATIONS = 3
 
 
 def clean_png(source: Path, destination: Path) -> None:
-    """Set alpha values below ``ALPHA_THRESHOLD`` to fully transparent."""
+    """Remove faint pixels and consolidate similar colours into a small palette."""
     with Image.open(source) as image:
         # Convert palette, grayscale, and RGB images consistently to an alpha-capable
         # format before updating the alpha channel.
@@ -21,9 +23,22 @@ def clean_png(source: Path, destination: Path) -> None:
         cleaned_alpha = alpha.point(
             lambda value: 0 if value < ALPHA_THRESHOLD else value
         )
-        rgba_image.putalpha(cleaned_alpha)
 
-        rgba_image.save(destination, "PNG")
+        # Quantize RGB separately from alpha. FASTOCTREE is the only built-in
+        # option that can quantize RGBA directly, but it treats translucency as
+        # part of each colour and can visibly alter anti-aliased edges. Median
+        # cut produces a closer RGB palette; restoring the cleaned alpha channel
+        # keeps the image's smooth edges intact.
+        palette_image = rgba_image.convert("RGB").quantize(
+            colors=PALETTE_COLORS,
+            method=Image.Quantize.MEDIANCUT,
+            kmeans=KMEANS_ITERATIONS,
+            dither=Image.Dither.NONE,
+        )
+        result = palette_image.convert("RGBA")
+        result.putalpha(cleaned_alpha)
+
+        result.save(destination, "PNG")
 
 
 def parse_args() -> argparse.Namespace:
