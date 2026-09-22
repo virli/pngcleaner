@@ -15,8 +15,6 @@ KMEANS_ITERATIONS = 3
 def clean_png(source: Path, destination: Path) -> None:
     """Remove faint pixels and consolidate similar colours into a small palette."""
     with Image.open(source) as image:
-        # Convert palette, grayscale, and RGB images consistently to an alpha-capable
-        # format before updating the alpha channel.
         rgba_image = image.convert("RGBA")
         alpha = rgba_image.getchannel("A")
 
@@ -24,20 +22,8 @@ def clean_png(source: Path, destination: Path) -> None:
             lambda value: 0 if value < ALPHA_THRESHOLD else value
         )
 
-        # Quantize RGB separately from alpha. FASTOCTREE is the only built-in
-        # option that can quantize RGBA directly, but it treats translucency as
-        # part of each colour and can visibly alter anti-aliased edges. Median
-        # cut produces a closer RGB palette; restoring the cleaned alpha channel
-        # keeps the image's smooth edges intact.
-        palette_image = rgba_image.convert("RGB").quantize(
-            colors=PALETTE_COLORS,
-            method=Image.Quantize.MEDIANCUT,
-            kmeans=KMEANS_ITERATIONS,
-            dither=Image.Dither.NONE,
-        )
-        result = palette_image.convert("RGBA")
+        result = rgba_image
         result.putalpha(cleaned_alpha)
-
         result.save(destination, "PNG")
 
 
