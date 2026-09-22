@@ -8,8 +8,6 @@ from pathlib import Path
 from PIL import Image
 
 ALPHA_THRESHOLD = 20
-PALETTE_COLORS = 64
-KMEANS_ITERATIONS = 3
 
 
 def clean_png(source: Path, destination: Path) -> None:
